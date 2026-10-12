@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "N",
+    "S",
+    "S"
+  ],
+  "result": {
+    "count": 1,
+    "id": "prisonrealm:guard_baton"
+  }
+}

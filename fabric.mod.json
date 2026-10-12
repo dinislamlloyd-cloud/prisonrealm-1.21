@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "prisonrealm",
+  "version": "${version}",
+  "name": "Prison Kingdom",
+  "description": "Тюремное царство: куб-печать, тюремный мир из песка душ, наручники и дубинка стражника.",
+  "authors": [
+    "Claude"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.prisonrealm.PrisonRealmMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

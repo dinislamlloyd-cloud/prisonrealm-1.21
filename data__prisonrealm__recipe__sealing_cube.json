@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:obsidian",
+    "minecraft:obsidian",
+    "minecraft:obsidian",
+    "minecraft:red_dye",
+    "minecraft:red_dye",
+    "minecraft:red_dye"
+  ],
+  "result": {
+    "count": 1,
+    "id": "prisonrealm:sealing_cube"
+  }
+}

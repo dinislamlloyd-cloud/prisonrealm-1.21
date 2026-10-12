@@ -40,7 +40,7 @@ public class HandcuffsItem extends Item {
 			return ActionResult.FAIL;
 		}
 		if (PrisonManager.arrest(target, PrisonManager.DEFAULT_SECONDS)) {
-			guard.getServerWorld().getServer().getPlayerManager().broadcast(
+			guard.getEntityWorld().getServer().getPlayerManager().broadcast(
 					Text.translatable("prisonrealm.arrested_by", target.getDisplayName(), guard.getDisplayName()), false);
 			stack.damage(1, guard, hand);
 			return ActionResult.SUCCESS;

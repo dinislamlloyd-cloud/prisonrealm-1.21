@@ -83,7 +83,7 @@ public final class PrisonCommands {
 
 	private static int time(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
 		ServerPlayerEntity p = ctx.getSource().getPlayerOrThrow();
-		PrisonState.Entry e = PrisonState.get(p.getServerWorld().getServer()).get(p.getUuid());
+		PrisonState.Entry e = PrisonState.get(p.getEntityWorld().getServer()).get(p.getUuid());
 		if (e == null) {
 			ctx.getSource().sendFeedback(() -> Text.translatable("prisonrealm.cmd.free"), false);
 			return 0;

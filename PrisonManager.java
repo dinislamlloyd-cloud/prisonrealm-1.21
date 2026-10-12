@@ -176,7 +176,7 @@ public final class PrisonManager {
 		if (!(player instanceof ServerPlayerEntity sp)) {
 			return false;
 		}
-		return PrisonState.get(sp.getServerWorld().getServer()).has(sp.getUuid());
+		return PrisonState.get(sp.getEntityWorld().getServer()).has(sp.getUuid());
 	}
 
 	public static String formatTicks(int ticks) {
@@ -240,7 +240,7 @@ public final class PrisonManager {
 		Vec3d look = src.getRotationVec(1.0f);
 		LivingEntity best = null;
 		double bestDot = 0.96;
-		for (LivingEntity o : src.getServerWorld().getEntitiesByClass(LivingEntity.class,
+		for (LivingEntity o : src.getEntityWorld().getEntitiesByClass(LivingEntity.class,
 				src.getBoundingBox().expand(LOOK_RANGE), e -> e != src && canSeal(e))) {
 			Vec3d to = o.getEntityPos().add(0, o.getHeight() * 0.5, 0).subtract(eye);
 			double d = to.length();
@@ -262,9 +262,9 @@ public final class PrisonManager {
 	public static void onChat(ServerPlayerEntity sender, String raw) {
 		String word = raw.trim().toLowerCase(Locale.ROOT).replaceAll("[!.?,…]+$", "");
 		if (CLOSE_WORDS.contains(word)) {
-			sender.getServerWorld().getServer().execute(() -> handleClose(sender));
+			sender.getEntityWorld().getServer().execute(() -> handleClose(sender));
 		} else if (OPEN_WORDS.contains(word)) {
-			sender.getServerWorld().getServer().execute(() -> handleOpen(sender));
+			sender.getEntityWorld().getServer().execute(() -> handleOpen(sender));
 		}
 	}
 
@@ -294,9 +294,9 @@ public final class PrisonManager {
 		if (isPrisoner(sender)) {
 			return;
 		}
-		MinecraftServer server = sender.getServerWorld().getServer();
+		MinecraftServer server = sender.getEntityWorld().getServer();
 		PrisonState state = PrisonState.get(server);
-		ServerWorld w = sender.getServerWorld();
+		ServerWorld w = sender.getEntityWorld();
 		Identifier senderDim = w.getRegistryKey().getValue();
 		Vec3d me = sender.getEntityPos().add(0, 0.9, 0);
 		double reach = OPEN_RANGE + SEALED_SIZE / 2 + 0.3;
@@ -650,7 +650,7 @@ public final class PrisonManager {
 		// Цель прикована к месту.
 		if (target != null && target.getEntityPos().squaredDistanceTo(s.anchor) > 0.04) {
 			if (target instanceof ServerPlayerEntity p) {
-				p.networkHandler.requestTeleport(s.anchor.x, s.anchor.y, s.anchor.z, p.getYaw(), p.getPitch());
+				p.teleport(p.getEntityWorld(), s.anchor.x, s.anchor.y, s.anchor.z, Set.of(), p.getYaw(), p.getPitch(), false);
 			} else {
 				target.requestTeleport(s.anchor.x, s.anchor.y, s.anchor.z);
 			}
@@ -921,7 +921,7 @@ public final class PrisonManager {
 	}
 
 	public static boolean arrest(ServerPlayerEntity p, int seconds, UUID cubeId) {
-		MinecraftServer server = p.getServerWorld().getServer();
+		MinecraftServer server = p.getEntityWorld().getServer();
 		PrisonState state = PrisonState.get(server);
 		ServerWorld prison = server.getWorld(PrisonRealmMod.PRISON_WORLD);
 		if (prison == null || state.has(p.getUuid())) {
@@ -930,7 +930,7 @@ public final class PrisonManager {
 
 		PrisonState.Entry e = new PrisonState.Entry();
 		e.ticksLeft = seconds * 20;
-		e.dimension = p.getServerWorld().getRegistryKey().getValue();
+		e.dimension = p.getEntityWorld().getRegistryKey().getValue();
 		e.x = p.getX();
 		e.y = p.getY();
 		e.z = p.getZ();
@@ -958,7 +958,7 @@ public final class PrisonManager {
 
 	/** Вещи игрока в NBT: список {Slot, Item}. */
 	private static NbtList saveInventory(ServerPlayerEntity p) {
-		RegistryOps<NbtElement> ops = p.getServerWorld().getServer().getRegistryManager().getOps(NbtOps.INSTANCE);
+		RegistryOps<NbtElement> ops = p.getEntityWorld().getServer().getRegistryManager().getOps(NbtOps.INSTANCE);
 		NbtList list = new NbtList();
 		PlayerInventory inv = p.getInventory();
 		for (int i = 0; i < inv.size(); i++) {
@@ -975,7 +975,7 @@ public final class PrisonManager {
 	}
 
 	private static void loadInventory(ServerPlayerEntity p, NbtList list) {
-		RegistryOps<NbtElement> ops = p.getServerWorld().getServer().getRegistryManager().getOps(NbtOps.INSTANCE);
+		RegistryOps<NbtElement> ops = p.getEntityWorld().getServer().getRegistryManager().getOps(NbtOps.INSTANCE);
 		PlayerInventory inv = p.getInventory();
 		inv.clear();
 		for (int i = 0; i < list.size(); i++) {
@@ -1005,7 +1005,7 @@ public final class PrisonManager {
 	}
 
 	private static void release(ServerPlayerEntity p, Reason reason) {
-		MinecraftServer server = p.getServerWorld().getServer();
+		MinecraftServer server = p.getEntityWorld().getServer();
 		PrisonState state = PrisonState.get(server);
 		PrisonState.Entry e = state.remove(p.getUuid());
 		if (e == null) {
@@ -1077,11 +1077,11 @@ public final class PrisonManager {
 	}
 
 	public static void onRespawn(ServerPlayerEntity p) {
-		PrisonState state = PrisonState.get(p.getServerWorld().getServer());
+		PrisonState state = PrisonState.get(p.getEntityWorld().getServer());
 		if (!state.has(p.getUuid())) {
 			return;
 		}
-		ServerWorld prison = p.getServerWorld().getServer().getWorld(PrisonRealmMod.PRISON_WORLD);
+		ServerWorld prison = p.getEntityWorld().getServer().getWorld(PrisonRealmMod.PRISON_WORLD);
 		if (prison != null) {
 			p.changeGameMode(GameMode.ADVENTURE);
 			toCell(p, prison);
@@ -1119,7 +1119,7 @@ public final class PrisonManager {
 				release(p, Reason.TIME);
 				continue;
 			}
-			if (p.getServerWorld() != prison) {
+			if (p.getEntityWorld() != prison) {
 				toCell(p, prison);
 			}
 			if (p.getGameMode() != GameMode.ADVENTURE) {
